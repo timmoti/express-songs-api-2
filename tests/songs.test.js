@@ -40,6 +40,16 @@ describe("routes/songs", () => {
     });
   });
 
+  it("GET /songs/:id should return 404 if song id does not exist", () => {
+    return request(app)
+    .get("/songs/10")
+    .send(requestBody)
+    
+    .then(response => {
+      expect(response.status).toEqual(404);
+      expect(response.body).toMatchObject({message: 'Unable to find song with id: 10' });
+    });
+  });
 
   it("PUT /songs/id should return the updated song", () => {
     requestBody = {
@@ -55,6 +65,23 @@ describe("routes/songs", () => {
     .then(response => {
       expect(response.status).toEqual(200);
       expect(response.body).toMatchObject(requestBody);
+    });
+  });
+
+  it("PUT /songs/:id should return 404 if song id does not exist", () => {
+    requestBody = {
+      id: "10",
+      name: "updated song",
+      artist: "rhianna"
+    };
+
+    return request(app)
+    .put("/songs/10")
+    .send(requestBody)
+    
+    .then(response => {
+      expect(response.status).toEqual(404);
+      expect(response.body).toMatchObject({message: 'Unable to update song with id: 10' });
     });
   });
 
@@ -74,6 +101,16 @@ describe("routes/songs", () => {
     })
   });
   
+  it("DELETE /songs/:id should return 404 if song id does not exist", () => {
+    return request(app)
+    .delete("/songs/10")
+    
+    .then(response => {
+      expect(response.status).toEqual(404);
+      expect(response.body).toMatchObject({message: 'Unable to delete song with id: 10' });
+    });
+  });
+
   it("GET /songs should return an empty array", () => {
     return request(app)
     .get("/songs")

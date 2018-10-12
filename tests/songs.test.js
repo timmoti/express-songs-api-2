@@ -27,8 +27,23 @@ describe("routes/songs", () => {
     });
   });
   
-  it("PUT /songs should return the updated song", () => {
+  it("GET /songs/:id should return the song with id", () => {
+    expected = {id: "1", name: "test song", artist: "rhianna"};
+    
+    return request(app)
+    .get("/songs/1")
+    .send(requestBody)
+    
+    .then(response => {
+      expect(response.status).toEqual(200);
+      expect(response.body).toMatchObject(expected);
+    });
+  });
+
+
+  it("PUT /songs/id should return the updated song", () => {
     requestBody = {
+      id: "1",
       name: "updated song",
       artist: "rhianna"
     };

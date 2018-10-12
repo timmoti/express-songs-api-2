@@ -27,6 +27,19 @@ describe("routes/movies", () => {
     });
   });
   
+  it("GET /movies/:id should return the movie with id", () => {
+    expected = { name: "test movie", artist: "rhianna"};
+    
+    return request(app)
+    .get("/movies/1")
+    .send(requestBody)
+    
+    .then(response => {
+      expect(response.status).toEqual(200);
+      expect(response.body).toMatchObject(expected);
+    });
+  });
+
   it("PUT /movies should return the updated movie", () => {
     requestBody = {
       name: "updated movie",

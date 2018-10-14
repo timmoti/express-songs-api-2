@@ -1,51 +1,49 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const app = express();
-const _ = require('lodash');
 const PORT = 3000
 
 app.use(express.static('client'));
 app.use(express.json())
 
 let songs = [];
-let id = 0;
 
+//Songs API
 //return list of all songs
 app.get('/songs', (req, res) => {
-  res.json(songs);
+  res.status(200).json(songs);
 });
 
 //create a new song, and return new song
 app.post('/songs', (req, res) => {
-  let song = req.body;
-  id++;
-  song.id = id + '';
-  songs.push(song);
-  res.json(song);
+  let newSong = {
+    id: songs.length + 1,
+    name: req.body.name,
+    artist: req.body.artist 
+  }
+  songs.push(newSong);
+  res.status(201).json(newSong);
 });
 
 //return a song with id 
 app.get('/songs/:id', (req, res) => {
-  let song = _.find(songs, {id: req.params.id});
-  res.json(song || {});
+  let song = songs.find(song => song.id == parseInt(req.params.id));
+  res.status(200).json(song);
 });
 
 //edit a song with id, and return edited song
 app.put('/songs/:id', (req, res) => {
-  let update = req.body;
-  if (update.id) {
-    delete update.id
-  }
-  let song = _.findIndex(songs, {id: req.params.id});
-  let updatedSong = _.assign(songs[song], update);
-  res.json(updatedSong);
+  let song = songs.find(song => song.id === parseInt(req.params.id));
+  song.name = req.body.name;
+  song.artist = req.body.artist;
+  res.status(200).json(song);
 });
 
 //delete a song with id, and return deleted song
 app.delete("/songs/:id", (req, res) => {
-  let songToDelete = songs[_.findIndex(songs, {id: req.params.id})];
-  songs = songs.filter(song => song.id !== req.params.id);
-  res.json(songToDelete);
+  let songToDelete = songs.find(song => song.id === parseInt(req.params.id));
+  let index = songs.indexOf(songToDelete);
+  songs.splice(index, 1);
+  res.status(200).json(songToDelete);
 });
 
 app.listen(PORT);

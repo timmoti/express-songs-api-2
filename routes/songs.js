@@ -26,7 +26,7 @@ const createSong = (song) => {
 const getSong = (id) => {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
-            let songFound = _.find(songs, {id: id});
+            let songFound = songs.find(song => song.id == parseInt(id));
             if (!songFound){
                 reject(new Error())
             }
@@ -38,13 +38,14 @@ const getSong = (id) => {
 const updateSong = (songToUpdate) => {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
-            let id = songToUpdate.id
-            let song = _.findIndex(songs, {id: id});
-            if(song == -1) {
-                reject(new Error());
+            let song = songs.find(song => song.id === parseInt(songToUpdate.id));
+
+            if(!song) {
+                return reject(new Error());
             }
-            let updatedSong = _.assign(songs[song], songToUpdate);
-            resolve(updatedSong)
+            song.name = songToUpdate.name;
+            song.artist = songToUpdate.artist;
+            resolve(song)
         }, DELAY);
     });
 }
@@ -52,11 +53,14 @@ const updateSong = (songToUpdate) => {
 const deleteSong = (songToDeleteID) => {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
-            let songToDelete = songs[_.findIndex(songs, {id: songToDeleteID})];
+            let songToDelete = songs.find(song => song.id === parseInt(songToDeleteID));
+            
             if(!songToDelete) {
                 reject(new Error())
             }
-            songs = songs.filter(song => song.id !== songToDeleteID);
+
+            let index = songs.indexOf(songToDelete);
+            songs.splice(index, 1);
             resolve(songToDelete);
         }, DELAY)
     })
@@ -76,10 +80,12 @@ router.get('/', async (req, res) => {
   
 router.post('/', async (req, res) => {
     try{
-        let song = req.body;
-        songID++;
-        song.id = songID + '';
-        newSong = await createSong(song);
+        let newSong = {
+            id: songs.length + 1,
+            name: req.body.name,
+            artist: req.body.artist 
+        }
+        newSong = await createSong(newSong);
         res.status(201).json(newSong);
     }
     catch(error){

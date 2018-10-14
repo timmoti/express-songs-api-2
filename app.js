@@ -4,8 +4,7 @@ const app = express();
 const _ = require('lodash');
 
 app.use(express.static('client'));
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
+app.use(express.json())
 
 let songs = [];
 let id = 0;

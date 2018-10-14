@@ -4,57 +4,62 @@ const _ = require('lodash');
 
 let songs = [];
 let songID = 0;
+const DELAY = 100
 
-const createPromise = new Promise((resolve, reject) => {
-    setTimeout(function() {
-      resolve();
-    }, 300);
-  });
-
-const getSongs = (resolve, reject) => {
-    return createPromise.then(() => {
-        return songs;
+const getSongs = () => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve(songs);
+          }, DELAY);
     });
 }
 
-const createSong = (song, reject) => {
-    return createPromise.then(()=>{
-        songs.push(song);
-        return song;
+const createSong = (song) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            songs.push(song);
+            resolve(song)
+        }, DELAY);
     });
 }
 
-const getSong = (id, reject) => {
-    return createPromise.then(() => {
-        let songFound = _.find(songs, {id: id});
-        if (!songFound){
-            throw new Error("Id not found")
-        }
-        return songFound;
+const getSong = (id) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            let songFound = _.find(songs, {id: id});
+            if (!songFound){
+                reject(new Error())
+            }
+            return resolve(songFound);
+        }, DELAY);
+    })
+}
+
+const updateSong = (songToUpdate) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            let id = songToUpdate.id
+            let song = _.findIndex(songs, {id: id});
+            if(song == -1) {
+                reject(new Error());
+            }
+            let updatedSong = _.assign(songs[song], songToUpdate);
+            resolve(updatedSong)
+        }, DELAY);
     });
 }
 
-const updateSong = (songToUpdate, reject) => {
-    return createPromise.then(() => {
-        let id = songToUpdate.id
-        let song = _.findIndex(songs, {id: id});
-        if(song == -1) {
-            throw new Error()
-        }
-        let updatedSong = _.assign(songs[song], songToUpdate);
-        return updatedSong
-    });
-}
-
-const deleteSong = (songToDeleteID, reject) => {
-    return createPromise.then(() => { 
-        let songToDelete = songs[_.findIndex(songs, {id: songToDeleteID})];
-        if(!songToDelete) {
-            throw new Error()
-        }
-        songs = songs.filter(song => song.id !== songToDeleteID);
-        return songToDelete;
-    });
+const deleteSong = (songToDeleteID) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            let songToDelete = songs[_.findIndex(songs, {id: songToDeleteID})];
+            if(!songToDelete) {
+                reject(new Error())
+            }
+            songs = songs.filter(song => song.id !== songToDeleteID);
+            resolve(songToDelete);
+        }, DELAY)
+    })
 }
 
 //Song API
@@ -65,8 +70,7 @@ router.get('/', async (req, res) => {
         res.status(200).json(songs);
     }
     catch(error){
-        throw error;
-        //res.status(404).json({message: "unable to list all songs"})
+        res.status(404).json({message: "unable to list all songs"})
     }
 });
   

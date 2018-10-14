@@ -28,7 +28,7 @@ describe("routes/songs", () => {
   });
   
   it("GET /songs/:id should return the song with id", () => {
-    expected = {id: "1", name: "test song", artist: "rhianna"};
+    expected = {id: 1, name: "test song", artist: "rhianna"};
     
     return request(app)
     .get("/songs/1")
@@ -53,7 +53,7 @@ describe("routes/songs", () => {
 
   it("PUT /songs/id should return the updated song", () => {
     requestBody = {
-      id: "1",
+      id: 1,
       name: "updated song",
       artist: "rhianna"
     };
@@ -70,7 +70,7 @@ describe("routes/songs", () => {
 
   it("PUT /songs/:id should return 404 if song id does not exist", () => {
     requestBody = {
-      id: "10",
+      id: 10,
       name: "updated song",
       artist: "rhianna"
     };

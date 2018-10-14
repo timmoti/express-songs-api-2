@@ -1,9 +1,7 @@
 const express = require('express');
 const router = express.Router()
-const _ = require('lodash');
 
 let movies = [];
-let movieID = 0;
 
 // Movies API
 router.get('/', (req, res) => {
@@ -11,31 +9,31 @@ router.get('/', (req, res) => {
 });
   
 router.post('/', (req, res) => {
-    let movie = req.body;
-    movieID++;
-    movie.id = movieID + '';
-    movies.push(movie);
-    res.status(201).json(movie);
+    let newmovie = {
+        id: movies.length + 1,
+        name: req.body.name,
+        artist: req.body.artist 
+    }
+    movies.push(newmovie);
+    res.status(201).json(newmovie);
 });
 
 router.get('/:id', (req, res) => {
-    let movie = _.find(movies, {id: req.params.id});
-    res.status(200).json(movie || {});
+    let movie = movies.find(movie => movie.id == parseInt(req.params.id));
+    res.status(200).json(movie);
 });
 
 router.put('/:id', (req, res) => {
-    let update = req.body;
-    if (update.id) {
-        delete update.id
-    }
-    let movie = _.findIndex(movies, {id: req.params.id});
-    let updatedMovie = _.assign(movies[movie], update);
-    res.status(200).json(updatedMovie);
+    let movie = movies.find(movie => movie.id === parseInt(req.params.id));
+    movie.name = req.body.name;
+    movie.artist = req.body.artist;
+    res.status(200).json(movie);
 });
 
 router.delete("/:id", (req, res) => {
-    let movieToDelete = movies[_.findIndex(movies, {id: req.params.id})];
-    movies = movies.filter(movie => movie.id !== req.params.id);
+    let movieToDelete = movies.find(movie => movie.id === parseInt(req.params.id));
+    let index = movies.indexOf(movieToDelete);
+    movies.splice(index, 1);
     res.status(200).json(movieToDelete);
 });
 

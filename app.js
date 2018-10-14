@@ -1,17 +1,13 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const app = express();
-const _ = require('lodash');
 
 app.use(express.static('client'));
 app.use(express.json())
 
 let songs = [];
 let movies = [];
-let songID = 0;
-let movieID = 0;
 
-//Song API
+//Songs API
 //return list of all songs
 app.get('/songs', (req, res) => {
   res.status(200).json(songs);
@@ -19,69 +15,74 @@ app.get('/songs', (req, res) => {
 
 //create a new song, and return new song
 app.post('/songs', (req, res) => {
-  let song = req.body;
-  songID++;
-  song.id = songID + '';
-  songs.push(song);
-  res.status(201).json(song);
+  let newSong = {
+    id: songs.length + 1,
+    name: req.body.name,
+    artist: req.body.artist 
+  }
+  songs.push(newSong);
+  res.status(201).json(newSong);
 });
 
 //return a song with id 
 app.get('/songs/:id', (req, res) => {
-  let song = _.find(songs, {id: req.params.id});
-  res.status(200).json(song || {});
+  let song = songs.find(song => song.id == parseInt(req.params.id));
+  res.status(200).json(song);
 });
 
 //edit a song with id, and return edited song
 app.put('/songs/:id', (req, res) => {
-  let update = req.body;
-  if (update.id) {
-    delete update.id
-  }
-  let song = _.findIndex(songs, {id: req.params.id});
-  let updatedSong = _.assign(songs[song], update);
-  res.status(200).json(updatedSong);
+  let song = songs.find(song => song.id === parseInt(req.params.id));
+  song.name = req.body.name;
+  song.artist = req.body.artist;
+  res.status(200).json(song);
 });
 
 //delete a song with id, and return deleted song
 app.delete("/songs/:id", (req, res) => {
-  let songToDelete = songs[_.findIndex(songs, {id: req.params.id})];
-  songs = songs.filter(song => song.id !== req.params.id);
+  let songToDelete = songs.find(song => song.id === parseInt(req.params.id));
+  let index = songs.indexOf(songToDelete);
+  songs.splice(index, 1);
   res.status(200).json(songToDelete);
 });
 
 
 // Movies API
+//return list of all movies
 app.get('/movies', (req, res) => {
   res.status(200).json(movies);
 });
 
+//create a new movie, and return new movie
 app.post('/movies', (req, res) => {
-  let movie = req.body;
-  movieID++;
-  movie.id = movieID + '';
-  movies.push(movie);
-  res.status(201).json(movie);
-});
-
-app.get('/movies/:id', (req, res) => {
-  let movie = _.find(movies, {id: req.params.id});
-  res.status(200).json(movie || {});
-});
-
-app.put('/movies/:id', (req, res) => {
-  let update = req.body;
-  if (update.id) {
-    delete update.id
+  let newmovie = {
+    id: movies.length + 1,
+    name: req.body.name,
+    artist: req.body.artist 
   }
-  let movie = _.findIndex(movies, {id: req.params.id});
-  let updatedMovie = _.assign(movies[movie], update);
-  res.status(200).json(updatedMovie);
+  movies.push(newmovie);
+  res.status(201).json(newmovie);
 });
 
+//return a movie with id 
+app.get('/movies/:id', (req, res) => {
+  let movie = movies.find(movie => movie.id == parseInt(req.params.id));
+  res.status(200).json(movie);
+});
+
+//edit a movie with id, and return edited movie
+app.put('/movies/:id', (req, res) => {
+  let movie = movies.find(movie => movie.id === parseInt(req.params.id));
+  movie.name = req.body.name;
+  movie.artist = req.body.artist;
+  res.status(200).json(movie);
+});
+
+//delete a movie with id, and return deleted movie
 app.delete("/movies/:id", (req, res) => {
-  let movieToDelete = movies[_.findIndex(movies, {id: req.params.id})];
-  movies = movies.filter(movie => movie.id !== req.params.id);
+  let movieToDelete = movies.find(movie => movie.id === parseInt(req.params.id));
+  let index = movies.indexOf(movieToDelete);
+  movies.splice(index, 1);
   res.status(200).json(movieToDelete);
 });
 

@@ -5,14 +5,15 @@ describe("routes/songs", () => {
 
   it("POST /songs should return a new song object", () => {
     requestBody = { name: "test song", artist: "rhianna"};
-    
+    responseBody = {id: 1, name: "test song", artist: "rhianna"};
     return request(app)
     .post("/songs")
     .send(requestBody)
     
     .then(response => {
+
       expect(response.status).toEqual(201);
-      expect(response.body).toMatchObject(requestBody);
+      expect(response.body).toEqual(responseBody)
     });
   });
   
@@ -29,6 +30,7 @@ describe("routes/songs", () => {
   
   it("PUT /songs should return the updated song", () => {
     requestBody = {
+      id: 1,
       name: "updated song",
       artist: "rhianna"
     };
@@ -39,13 +41,14 @@ describe("routes/songs", () => {
     
     .then(response => {
       expect(response.status).toEqual(200);
-      expect(response.body).toMatchObject(requestBody);
+      expect(response.body).toEqual(requestBody);
     });
   });
 
   it("DELETE /songs/:id should return the deleted song", () => {
     const ID = 1;
     expected = {
+      id: 1,
       name: "updated song",
       artist: "rhianna"
     };
@@ -55,7 +58,7 @@ describe("routes/songs", () => {
 
     .then(response => {
       expect(response.status).toEqual(200);
-      expect(response.body).toMatchObject(expected);
+      expect(response.body).toEqual(expected);
     })
   });
   

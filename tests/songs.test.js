@@ -134,7 +134,7 @@ describe("routes/songs", () => {
     
     .then(response => {
       expect(response.status).toEqual(404);
-      // expect(response.body).toMatchObject({message: 'Unable to delete song with id: 10' });
+      expect(response.body).toMatchObject({message: 'Unable to delete song with id: 10' });
     });
   });
 

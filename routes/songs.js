@@ -1,3 +1,4 @@
+const Joi = require('Joi');
 const express = require('express');
 const router = express.Router();
 
@@ -10,54 +11,88 @@ router.get('/', (req, res, next) => {
 });
 
 //create a new song, and return new song
-router.post('/', (req, res) => {
-    if (req.body){
-        let newSong = {
-            id: songs.length + 1,
-            name: req.body.name,
-            artist: req.body.artist 
-        }
-        songs.push(newSong);
-        res.status(201).json(newSong);
+router.post('/', (req, res, next) => {
+    const validation = validateSong(req.body)
+    if(validation.error) {
+        let error = new Error(validation.error.details[0].message)
+        error.statusCode = 400
+        return next(error); 
+    } 
+    
+    let newSong = {
+        id: songs.length + 1,
+        name: req.body.name,
+        artist: req.body.artist 
     }
-    next(new Error("Unable to create song"))
+    songs.push(newSong);
+    res.status(201).json(newSong);
 });
 
 //return a song with id 
 router.get('/:id', (req, res, next) => {
-
     let song = songs.find(song => song.id == parseInt(req.params.id));
-    if(song) {
-        res.status(200).json(song);
+    if(!song){
+        let error = new Error(`Unable to find song with id: ${req.params.id}`)
+        error.statusCode = 404
+        return next(error)
     }
-    next(new Error(`Unable to find song with id: ${req.params.id}`))
+    res.status(200).json(song);
 });
 
 //update a song with id, and return edited song
 router.put('/:id', (req, res, next) => {
     let song = songs.find(song => song.id === parseInt(req.params.id));
-    if (song) {
-        song.name = req.body.name;
-        song.artist = req.body.artist;
-        res.status(200).json(song);
+    if(!song){
+        let error = new Error(`Unable to update song with id: ${req.params.id}`)
+        error.statusCode = 404
+        return next(error)
     }
-    next(new Error(`Unable to update song with id: ${req.params.id}`))
+
+    const validation = validateSong(req.body)
+    if (validation.error){
+        let error = new Error(validation.error.details[0].message)
+        error.statusCode = 400
+        return next(error);
+    }
+
+    song.name = req.body.name;
+    song.artist = req.body.artist;
+    res.status(200).json(song);
 });
 
 //delete a song with id, and return deleted song
 router.delete("/:id", (req, res, next) => {
     let songToDelete = songs.find(song => song.id === parseInt(req.params.id));
-    if(songToDelete){
-        let index = songs.indexOf(songToDelete);
-        songs.splice(index, 1);
-        res.status(200).json(songToDelete);
+    if(!songToDelete){
+        let error = new Error(`Unable to delete song with id: ${req.params.id}`)
+        error.statusCode = 404
+        return next(error)
     }
-    next(new Error(`Unable to delete song with id: ${req.params.id}`))
+    
+    let index = songs.indexOf(songToDelete);
+    songs.splice(index, 1);
+    res.status(200).json(songToDelete);
 });
 
-//Add error handler for songs router to return 404 on failure at any route
-router.use((err, req, res, next) => {
-    res.status(404).json({ message: err.message });
+//Add error handler for songs router to return error on failure at any route
+router.use(function(err, req, res, next) {
+    // If err has no error code, set error code to 500
+    if (!err.statusCode){
+        err.statusCode = 500; 
+        err.message = { message: "Internal server error"}
+    }
+
+    // send back specified status code and message
+    res.status(err.statusCode).json({ message : err.message}); 
 });
+
+function validateSong(song){
+    const schema = {
+        id: Joi.number().integer(),
+        name: Joi.string().min(3).required(),
+        artist: Joi.string().min(3).required()
+    }
+    return Joi.validate(song, schema);
+}
 
 module.exports = router;
